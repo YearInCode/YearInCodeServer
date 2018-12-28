@@ -13,7 +13,7 @@ g = Github()
 
 yearStart = datetime.datetime(2018, 1, 1, 0, 0, 0, 0)
 
-@app.route("/hello", methods=['GET'])
+@app.route("/", methods=['GET'])
 def hello():
     return "hi"
 
