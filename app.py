@@ -48,7 +48,7 @@ def get_first_repo_created():
             if repo.created_at < earliestTime:
                 earliestRepo = repo
                 earliestTime = repo.created_at
-    return earliestRepo.name, earliestRepo.
+    return earliestRepo.name
 
 @app.route("/get_num_repos_created", methods=['GET'])
 def get_num_repos_created():
