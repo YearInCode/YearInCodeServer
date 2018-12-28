@@ -48,7 +48,7 @@ def get_first_repo_created():
             if repo.created_at < earliestTime:
                 earliestRepo = repo
                 earliestTime = repo.created_at
-    return earliestRepo.name
+    return earliestRepo.name, earliestRepo.
 
 @app.route("/get_num_repos_created", methods=['GET'])
 def get_num_repos_created():
@@ -60,7 +60,7 @@ def get_num_repos_created():
     return str(num_repos)
 
 @app.route("/get_favorite_languages", methods=['GET'])
-def get_favorite_languages():
+def get_favorite3_languages():
     user = g.get_user()
     languages = []
     num_occurences = []
@@ -122,3 +122,5 @@ def get_best_starred_repos():
 
 
 
+if __name__ == "__main__":
+    app.run()
