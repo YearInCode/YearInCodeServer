@@ -86,7 +86,7 @@ def get_favorite_languages(token):
 def get_recommended_repos(token):
     g = Github(token)
     user = g.get_user()
-    repositories = g.search_repositories(query='language:' + get_favorite_languages(token).split(",")[0][3:-1], sort="stars", order="desc")
+    repositories = g.search_repositories(query='language:' + get_favorite_languages(token)[1:-1].split(", ")[0][1:-1], sort="stars", order="desc")
     recommended_repos = {}
     for repo in  repositories[:10]:
         recommended_repos.update({repo.name : repo.html_url})
@@ -97,13 +97,13 @@ def get_tastebreaker_repos(token):
     g = Github(token)
     user = g.get_user()
     tastebreaker_repos = {}
-    repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split(",")[1][3:-1])
+    repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token)[1:-1].split(", ")[1][1:-1])
 
     for repo in repositories_a[:5]:
         tastebreaker_repos.update({repo.name : repo.html_url})
 
-    if len(get_favorite_languages(token).split(","))>2:
-        repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split(",")[2][3:-1])
+    if len(get_favorite_languages(token)[1:-1].split(", "))>2:
+        repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token)[1:-1].split(", ")[2][1:-1])
         for repo in repositories_b[:5]:
             tastebreaker_repos.update({repo.name : repo.html_url})
 
@@ -116,7 +116,7 @@ def get_recommended_contribution_repos(token):
     g = Github(token)
     user = g.get_user()
     recommended_contribution_repos = {}
-    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split(",")[0][3:-1])
+    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split[1:-1](", ")[0][1:-1])
     for repo in repositories[:10]:
         recommended_contribution_repos.update({repo.name : repo.html_url})
     return json.dumps(recommended_contribution_repos)
