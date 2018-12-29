@@ -1,27 +1,34 @@
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
 from github import Github
 import github
 import os
 import datetime
-from flask import Flask
-app = Flask(__name__)
 import json
+from flask import Flask, request, render_template
+app = Flask(__name__)
+
 
 g = Github()
-#g = Github(os.environ["user"], os.environ["password"])
+# g = Github(os.environ["user"], os.environ["password"])
 
 # user = g.get_user()
 
 yearStart = datetime.datetime(2018, 1, 1, 0, 0, 0, 0)
 
+
 @app.route("/", methods=['GET'])
 def hello():
     return "hi"
 
-
 @app.route("/authenticate", methods=['GET', 'POST'])
 def authenticate():
+    global g
     token = request.form['token']
     g = Github(token)
+    return "success"
 
 
 @app.route("/get_highest_starred_repo_created", methods=['GET'])
@@ -33,8 +40,7 @@ def get_highest_starred_repo_created():
         if repo.stargazers_count > highestStars:
             highestStars = repo.stargazers_count
             highestRepo = repo.name
-    
-    return(str(highestStars), highestRepo)
+    return str([highestStars, highestRepo])
 
 
 
@@ -72,13 +78,13 @@ def get_favorite_languages():
             idx = languages.index(repo.language)
             num_occurences[idx] += 1
     languages_with_occurences = sorted(zip(languages, num_occurences), key=lambda x: x[1], reverse=True)
-    
-    return [i[0] for i in languages_with_occurences]
+
+    return str([i[0] for i in languages_with_occurences])
 
 @app.route("/get_recommended_repos", methods=['GET'])
 def get_recommended_repos():
     user = g.get_user()
-    repositories = g.search_repositories(query='language:' + get_favorite_languages()[0], sort="stars", order="desc")
+    repositories = g.search_repositories(query='language:' + get_favorite_languages().split(",")[0][3:-1], sort="stars", order="desc")
     recommended_repos = {}
     for repo in  repositories[:10]:
         recommended_repos.update({repo.name : repo.html_url})
@@ -88,14 +94,16 @@ def get_recommended_repos():
 def get_tastebreaker_repos():
     user = g.get_user()
     tastebreaker_repos = {}
-    repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages()[1])
-    repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages()[2])
-    
+    repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages().split(",")[1][3:-1])
+
     for repo in repositories_a[:5]:
         tastebreaker_repos.update({repo.name : repo.html_url})
-    for repo in repositories_b[:5]:
-        tastebreaker_repos.update({repo.name : repo.html_url})
-    
+
+    if len(get_favorite_languages().split(","))>2:
+        repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages().split(",")[2][3:-1])
+        for repo in repositories_b[:5]:
+            tastebreaker_repos.update({repo.name : repo.html_url})
+
     return json.dumps(tastebreaker_repos)
 
 
@@ -104,7 +112,7 @@ def get_tastebreaker_repos():
 def get_recommended_contribution_repos():
     user = g.get_user()
     recommended_contribution_repos = {}
-    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages()[0])
+    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages().split(",")[0][3:-1])
     for repo in repositories[:10]:
         recommended_contribution_repos.update({repo.name : repo.html_url})
     return json.dumps(recommended_contribution_repos)
@@ -123,8 +131,6 @@ def get_best_starred_repos():
     for repo in sorted_list:
         starred_dict.update({repo.name : repo.html_url})
     return json.dumps(starred_dict)
-
-
 
 if __name__ == "__main__":
     app.run()
