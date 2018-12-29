@@ -116,7 +116,7 @@ def get_recommended_contribution_repos(token):
     g = Github(token)
     user = g.get_user()
     recommended_contribution_repos = {}
-    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split[1:-1](", ")[0][1:-1])
+    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token)[1:-1].split(", ")[0][1:-1])
     for repo in repositories[:10]:
         recommended_contribution_repos.update({repo.name : repo.html_url})
     return json.dumps(recommended_contribution_repos)
