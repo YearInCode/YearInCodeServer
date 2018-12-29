@@ -113,18 +113,18 @@ def get_recommended_contribution_repos():
 @app.route("/get_best_starred_repos", methods=['GET'])
 def get_best_starred_repos():
     user = g.get_user()
-    starred_list = {}
+    starred_list = []
     starred_repos = user.get_starred()
     for repo in starred_repos:
         starred_list.append((repo, repo.stargazers_count))
     starred_list = sorted(starred_list, key=lambda x: x[1], reverse=True)
     sorted_list = [i[0] for i in starred_list[:10]]
+    starred_dict = {}
     for repo in sorted_list:
-        starred_list.update({repo.name : repo.html_url})
-    return json.dumps(starred_list)
+        starred_dict.update({repo.name : repo.html_url})
+    return json.dumps(starred_dict)
 
 
 
 if __name__ == "__main__":
     app.run()
-   
