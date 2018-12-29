@@ -43,7 +43,7 @@ def get_highest_starred_repo_created(token):
 
 
 @app.route("/get_first_repo_created/<token>", methods=['GET'])
-def get_first_repo_created():
+def get_first_repo_created(token):
     g = Github(token)
     user = g.get_user()
     earliestRepo = github.Repository.Repository
@@ -56,7 +56,7 @@ def get_first_repo_created():
     return earliestRepo.name
 
 @app.route("/get_num_repos_created/<token>", methods=['GET'])
-def get_num_repos_created():
+def get_num_repos_created(token):
     g = Github(token)
     user = g.get_user()
     num_repos = 0
@@ -66,7 +66,7 @@ def get_num_repos_created():
     return str(num_repos)
 
 @app.route("/get_favorite_languages/<token>", methods=['GET'])
-def get_favorite_languages():
+def get_favorite_languages(token):
     g = Github(token)
     user = g.get_user()
     languages = []
@@ -83,27 +83,27 @@ def get_favorite_languages():
     return str([i[0] for i in languages_with_occurences])
 
 @app.route("/get_recommended_repos/<token>", methods=['GET'])
-def get_recommended_repos():
+def get_recommended_repos(token):
     g = Github(token)
     user = g.get_user()
-    repositories = g.search_repositories(query='language:' + get_favorite_languages().split(",")[0][3:-1], sort="stars", order="desc")
+    repositories = g.search_repositories(query='language:' + get_favorite_languages(token).split(",")[0][3:-1], sort="stars", order="desc")
     recommended_repos = {}
     for repo in  repositories[:10]:
         recommended_repos.update({repo.name : repo.html_url})
     return json.dumps(recommended_repos)
 
 @app.route("/get_tastebreaker_repos/<token>", methods=['GET'])
-def get_tastebreaker_repos():
+def get_tastebreaker_repos(token):
     g = Github(token)
     user = g.get_user()
     tastebreaker_repos = {}
-    repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages().split(",")[1][3:-1])
+    repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split(",")[1][3:-1])
 
     for repo in repositories_a[:5]:
         tastebreaker_repos.update({repo.name : repo.html_url})
 
-    if len(get_favorite_languages().split(","))>2:
-        repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages().split(",")[2][3:-1])
+    if len(get_favorite_languages(token).split(","))>2:
+        repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split(",")[2][3:-1])
         for repo in repositories_b[:5]:
             tastebreaker_repos.update({repo.name : repo.html_url})
 
@@ -112,18 +112,18 @@ def get_tastebreaker_repos():
 
 
 @app.route("/get_recommended_contribution_repos/<token>", methods=['GET'])
-def get_recommended_contribution_repos():
+def get_recommended_contribution_repos(token):
     g = Github(token)
     user = g.get_user()
     recommended_contribution_repos = {}
-    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages().split(",")[0][3:-1])
+    repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages(token).split(",")[0][3:-1])
     for repo in repositories[:10]:
         recommended_contribution_repos.update({repo.name : repo.html_url})
     return json.dumps(recommended_contribution_repos)
 
 
 @app.route("/get_best_starred_repos/<token>", methods=['GET'])
-def get_best_starred_repos():
+def get_best_starred_repos(token):
     g = Github(token)
     user = g.get_user()
     starred_list = []
