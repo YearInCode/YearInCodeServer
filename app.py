@@ -4,10 +4,10 @@ import os
 import datetime
 from flask import Flask
 app = Flask(__name__)
-
+import json
 
 g = Github()
-# g = Github(os.environ["user"], os.environ["password"])
+#g = Github(os.environ["user"], os.environ["password"])
 
 # user = g.get_user()
 
@@ -60,7 +60,7 @@ def get_num_repos_created():
     return str(num_repos)
 
 @app.route("/get_favorite_languages", methods=['GET'])
-def get_favorite3_languages():
+def get_favorite_languages():
     user = g.get_user()
     languages = []
     num_occurences = []
@@ -79,48 +79,52 @@ def get_favorite3_languages():
 def get_recommended_repos():
     user = g.get_user()
     repositories = g.search_repositories(query='language:' + get_favorite_languages()[0], sort="stars", order="desc")
-    recommended_repos = []
+    recommended_repos = {}
     for repo in  repositories[:10]:
-        recommended_repos.append(repo.name)
-    return recommended_repos
+        recommended_repos.update({repo.name : repo.html_url})
+    return json.dumps(recommended_repos)
 
 @app.route("/get_tastebreaker_repos", methods=['GET'])
 def get_tastebreaker_repos():
     user = g.get_user()
-    tastebreaker_repos = []
+    tastebreaker_repos = {}
     repositories_a = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages()[1])
     repositories_b = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages()[2])
     
     for repo in repositories_a[:5]:
-        tastebreaker_repos.append(repo.name)
+        tastebreaker_repos.update({repo.name : repo.html_url})
     for repo in repositories_b[:5]:
-        tastebreaker_repos.append(repo.name)
-
-    return tastebreaker_repos
+        tastebreaker_repos.update({repo.name : repo.html_url})
+    
+    return json.dumps(tastebreaker_repos)
 
 
 
 @app.route("/get_recommended_contribution_repos", methods=['GET'])
 def get_recommended_contribution_repos():
     user = g.get_user()
-    recommended_contribution_repos = []
+    recommended_contribution_repos = {}
     repositories = g.search_repositories(query='good-first-issues:>3 language:' + get_favorite_languages()[0])
     for repo in repositories[:10]:
-        recommended_contribution_repos.append(repo.name)
-    return recommended_contribution_repos
+        recommended_contribution_repos.update({repo.name : repo.html_url})
+    return json.dumps(recommended_contribution_repos)
 
 
 @app.route("/get_best_starred_repos", methods=['GET'])
 def get_best_starred_repos():
     user = g.get_user()
-    starred_list = []
+    starred_list = {}
     starred_repos = user.get_starred()
     for repo in starred_repos:
-        starred_list.append((repo.name, repo.stargazers_count))
+        starred_list.append((repo, repo.stargazers_count))
     starred_list = sorted(starred_list, key=lambda x: x[1], reverse=True)
-    return [i[0] for i in starred_list[:10]]
+    sorted_list = [i[0] for i in starred_list[:10]]
+    for repo in sorted_list:
+        starred_list.update({repo.name : repo.html_url})
+    return json.dumps(starred_list)
 
 
 
 if __name__ == "__main__":
     app.run()
+   
